@@ -2,7 +2,7 @@
 
 A tiny Tampermonkey userscript for **okoun.cz**.
 
-It adds one button to Okoun favourites / my boards pages:
+It adds one button to Okoun pages that list clubs with unread posts:
 
 ```text
 Otevřít nepřečtené [N]
@@ -10,7 +10,7 @@ Otevřít nepřečtené [N]
 
 Clicking it opens all clubs with unread posts.
 
-Current version: **0.1.0**
+Current version: **0.2.0**
 
 ## Install
 
@@ -27,11 +27,20 @@ OkounAll runs on:
 ```text
 https://www.okoun.cz/favourites.jsp*
 https://www.okoun.cz/myBoards.jsp*
+https://www.okoun.cz/topic.jsp*
+https://www.okoun.cz/searchBoards.do*
 ```
+
+So it should work on:
+
+- Oblíbené kluby
+- Moje kluby
+- topic pages / témata
+- board search results / vyhledávání klubů
 
 ## Behavior
 
-OkounAll looks for unread board links on the page.
+OkounAll looks for unread board links on the current page.
 
 The current Okoun favourites markup looks roughly like this:
 
@@ -42,7 +51,15 @@ The current Okoun favourites markup looks roughly like this:
 </div>
 ```
 
-The script collects links inside `div.item`, prefers unread links inside `<b>`, and avoids opening duplicate URLs.
+The important bit is the unread counter text:
+
+```text
+18 nových
+1 nový
+285 nových
+```
+
+OkounAll now requires the link text to start with a number followed by `nový/nových`. This prevents false positives such as a board named **Nové kluby**. A board name containing “Nové” is not the same as unread posts. Tiny difference, large goblin.
 
 When clicked:
 
@@ -50,6 +67,14 @@ When clicked:
 2. the current tab navigates to the first unread club
 
 That keeps the spirit of the original script: your current tab becomes the first unread club, the rest wait in tabs.
+
+## What changed in 0.2.0
+
+- fixed false positive opening of **Nové kluby** when it had no unread posts
+- unread detection now matches numeric unread counters only
+- added support for topic pages
+- added support for board search results
+- broadened insertion target fallback for newer Okoun layouts
 
 ## Why this exists
 
@@ -73,8 +98,9 @@ Changed from the older script:
 - uses `@match` instead of old broad `@include`
 - uses `new URL(href, location.origin)` for safe absolute URLs
 - deduplicates unread links before opening them
+- detects unread links by text like `^\\d+\\s+nov...`, not by bold tag alone
 - keeps the old behavior: background tabs for all except the first, current tab opens the first
-- has more tolerant insertion target fallback: old YUI layout, `.main`, `#body`, then `document.body`
+- has more tolerant insertion target fallback: old YUI layout, board header, `.main`, `.yui-g`, `#body`, then `document.body`
 - logs found unread links to console for easier debugging
 
 Still intentionally small. This is a door opener, not a spaceship.
