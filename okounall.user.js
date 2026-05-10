@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OkounAll
 // @namespace    https://github.com/hanenashi/okounall
-// @version      0.2.0
+// @version      0.2.1
 // @description  Open all Okoun clubs with unread posts from favourites, my boards, topics, or board search results.
 // @author       hanenashi + original Okoun open-all-new idea
 // @match        https://www.okoun.cz/favourites.jsp*
@@ -29,6 +29,18 @@
         return new URL(href, location.origin).href;
     }
 
+    function boardPathFromHref(href) {
+        try {
+            const url = new URL(href, location.origin);
+            if (url.origin !== location.origin || !url.pathname.startsWith('/boards/')) {
+                return '';
+            }
+            return `${url.pathname}${url.search}${url.hash}`;
+        } catch (_) {
+            return '';
+        }
+    }
+
     function cleanText(node) {
         return (node.textContent || '').replace(/\s+/g, ' ').trim();
     }
@@ -41,12 +53,12 @@
         //   1 nový
         //   285 nových
         // Important: do NOT match a board name like "Nové kluby".
-        return /^\d+\s+nov(ý|e|é|ych|ých)\b/i.test(text);
+        return /^\d+\s+nov(?:ý|e|é|ych|ých)(?:\s|$)/i.test(text);
     }
 
     function isUnreadLink(anchor) {
         const href = anchor.getAttribute('href') || '';
-        if (!href.startsWith('/boards/')) return false;
+        if (!boardPathFromHref(href)) return false;
 
         // Old/current favourites markup puts the unread count link into <b>.
         // But the deciding signal is the numeric unread text, not merely <b>,
@@ -56,10 +68,10 @@
 
     function findUnreadLinks() {
         const candidates = [
-            ...document.querySelectorAll('div.item b a[href^="/boards/"]'),
-            ...document.querySelectorAll('div.item a[href^="/boards/"]'),
-            ...document.querySelectorAll('.main b a[href^="/boards/"]'),
-            ...document.querySelectorAll('.main a[href^="/boards/"]')
+            ...document.querySelectorAll('div.item b a[href]'),
+            ...document.querySelectorAll('div.item a[href]'),
+            ...document.querySelectorAll('.main b a[href]'),
+            ...document.querySelectorAll('.main a[href]')
         ];
 
         const seen = new Set();
@@ -67,9 +79,10 @@
 
         for (const a of candidates) {
             const href = a.getAttribute('href');
-            if (!href || seen.has(href) || !isUnreadLink(a)) continue;
-            seen.add(href);
-            links.push(href);
+            const boardPath = boardPathFromHref(href || '');
+            if (!boardPath || seen.has(boardPath) || !isUnreadLink(a)) continue;
+            seen.add(boardPath);
+            links.push(boardPath);
         }
 
         return links;
@@ -80,8 +93,19 @@
             document.querySelector('.board-page .board-header') ||
             document.querySelector('.main') ||
             document.querySelector('.yui-g') ||
-            document.querySelector('#body') ||
-            document.body;
+            document.querySelector('#body');
+    }
+
+    function insertOpener(opener) {
+        const spacer = document.createElement('br');
+        const place = findInsertionPlace();
+
+        if (place && place.parentNode) {
+            place.before(opener, spacer);
+            return;
+        }
+
+        document.body.prepend(opener, spacer);
     }
 
     function openInBackground(href) {
@@ -146,8 +170,7 @@
 
         opener.addEventListener('click', openUnread);
 
-        const place = findInsertionPlace();
-        place.before(opener, document.createElement('br'));
+        insertOpener(opener);
     }
 
     addButton();

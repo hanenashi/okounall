@@ -10,7 +10,7 @@ Otevřít nepřečtené [N]
 
 Clicking it opens all clubs with unread posts.
 
-Current version: **0.2.0**
+Current version: **0.2.1**
 
 ## Install
 
@@ -67,6 +67,12 @@ When clicked:
 2. the current tab navigates to the first unread club
 
 That keeps the spirit of the original script: your current tab becomes the first unread club, the rest wait in tabs.
+
+## What changed in 0.2.1
+
+- fixed matching of accented unread counters such as `1 nový`
+- accepts same-site absolute board links as well as `/boards/...` links
+- avoids inserting the opener before `<body>` when no known layout container exists
 
 ## What changed in 0.2.0
 
