@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         OkounAll
 // @namespace    https://github.com/hanenashi/okounall
-// @version      0.1.0
-// @description  Open all Okoun clubs with unread posts from favourites/myBoards.
+// @version      0.2.0
+// @description  Open all Okoun clubs with unread posts from favourites, my boards, topics, or board search results.
 // @author       hanenashi + original Okoun open-all-new idea
 // @match        https://www.okoun.cz/favourites.jsp*
 // @match        https://www.okoun.cz/myBoards.jsp*
+// @match        https://www.okoun.cz/topic.jsp*
+// @match        https://www.okoun.cz/searchBoards.do*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=okoun.cz
 // @downloadURL  https://raw.githubusercontent.com/hanenashi/okounall/main/okounall.user.js
 // @updateURL    https://raw.githubusercontent.com/hanenashi/okounall/main/okounall.user.js
@@ -27,22 +29,37 @@
         return new URL(href, location.origin).href;
     }
 
+    function cleanText(node) {
+        return (node.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function looksLikeUnreadCounter(anchor) {
+        const text = cleanText(anchor).toLowerCase();
+
+        // Examples seen on Okoun favourites:
+        //   18 nových
+        //   1 nový
+        //   285 nových
+        // Important: do NOT match a board name like "Nové kluby".
+        return /^\d+\s+nov(ý|e|é|ych|ých)\b/i.test(text);
+    }
+
     function isUnreadLink(anchor) {
         const href = anchor.getAttribute('href') || '';
-        const text = (anchor.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
-
         if (!href.startsWith('/boards/')) return false;
 
-        // Current favourites/myBoards markup usually puts unread counts into:
-        // <div class="item"> ... <b><a href="/boards/...">18 novych</a></b>
-        // Keep it semantic instead of opening every favourite board link.
-        return /nov(ý|ych|ých|e|é)/i.test(text) || anchor.closest('b');
+        // Old/current favourites markup puts the unread count link into <b>.
+        // But the deciding signal is the numeric unread text, not merely <b>,
+        // because board names can contain "Nové" and be bold somewhere too.
+        return looksLikeUnreadCounter(anchor);
     }
 
     function findUnreadLinks() {
         const candidates = [
             ...document.querySelectorAll('div.item b a[href^="/boards/"]'),
-            ...document.querySelectorAll('div.item a[href^="/boards/"]')
+            ...document.querySelectorAll('div.item a[href^="/boards/"]'),
+            ...document.querySelectorAll('.main b a[href^="/boards/"]'),
+            ...document.querySelectorAll('.main a[href^="/boards/"]')
         ];
 
         const seen = new Set();
@@ -60,8 +77,9 @@
 
     function findInsertionPlace() {
         return document.querySelector('div.yui-u.first.main') ||
-            document.querySelector('.yui-g') ||
+            document.querySelector('.board-page .board-header') ||
             document.querySelector('.main') ||
+            document.querySelector('.yui-g') ||
             document.querySelector('#body') ||
             document.body;
     }
