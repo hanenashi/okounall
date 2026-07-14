@@ -10,7 +10,7 @@ Otevřít nepřečtené [N]
 
 Clicking it opens all clubs with unread posts.
 
-Current version: **0.2.2**
+Current version: **0.2.3**
 
 ## Install
 
@@ -29,6 +29,7 @@ https://www.okoun.cz/favourites.jsp*
 https://www.okoun.cz/fav/topics*
 https://www.okoun.cz/myBoards.jsp*
 https://www.okoun.cz/topic.jsp*
+https://www.okoun.cz/topics/*
 https://www.okoun.cz/searchBoards.do*
 ```
 
@@ -68,6 +69,11 @@ When clicked:
 2. the current tab navigates to the first unread club
 
 That keeps the spirit of the original script: your current tab becomes the first unread club, the rest wait in tabs.
+
+## What changed in 0.2.3
+
+- added the new Okoun topics route, `https://www.okoun.cz/topics/*`
+- retained the legacy `topic.jsp` match for compatibility
 
 ## What changed in 0.2.2
 
