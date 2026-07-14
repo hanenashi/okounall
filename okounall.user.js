@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         OkounAll
 // @namespace    https://github.com/hanenashi/okounall
-// @version      0.2.1
+// @version      0.2.2
 // @description  Open all Okoun clubs with unread posts from favourites, my boards, topics, or board search results.
 // @author       hanenashi + original Okoun open-all-new idea
 // @match        https://www.okoun.cz/favourites.jsp*
+// @match        https://www.okoun.cz/fav/topics*
 // @match        https://www.okoun.cz/myBoards.jsp*
 // @match        https://www.okoun.cz/topic.jsp*
 // @match        https://www.okoun.cz/searchBoards.do*

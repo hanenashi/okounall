@@ -10,7 +10,7 @@ Otevřít nepřečtené [N]
 
 Clicking it opens all clubs with unread posts.
 
-Current version: **0.2.1**
+Current version: **0.2.2**
 
 ## Install
 
@@ -26,6 +26,7 @@ OkounAll runs on:
 
 ```text
 https://www.okoun.cz/favourites.jsp*
+https://www.okoun.cz/fav/topics*
 https://www.okoun.cz/myBoards.jsp*
 https://www.okoun.cz/topic.jsp*
 https://www.okoun.cz/searchBoards.do*
@@ -67,6 +68,22 @@ When clicked:
 2. the current tab navigates to the first unread club
 
 That keeps the spirit of the original script: your current tab becomes the first unread club, the rest wait in tabs.
+
+## What changed in 0.2.2
+
+- added the new Okoun favourites route, `https://www.okoun.cz/fav/topics*`
+- retained the legacy `favourites.jsp` match for compatibility
+
+## Temporary repaired bookmarks script
+
+The repository root also contains a temporary repaired copy of Eso's
+**Oblíbenější oblíbené** script:
+
+[Install repaired Okoun bookmarks](https://raw.githubusercontent.com/hanenashi/okounall/main/okoun-bookmarks.user.js)
+
+It supports the new `/fav/topics` route without external jQuery dependencies
+and preserves the existing `eso-okoun-books` cookie. This copy is intended as
+a bridge until the original Greasy Fork script is updated.
 
 ## What changed in 0.2.1
 
